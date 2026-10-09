@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Arian Atmar — Brag</title>
+    <script src="assets/js/gsap.min.js"></script>
+    <script src="assets/js/audio-data.js"></script>
+    <style>
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 100 900;
+        src: url("assets/fonts/inter-latin-wght-normal.woff2") format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 100 900;
+        src: url("assets/fonts/inter-latin-ext-wght-normal.woff2") format("woff2");
+        unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: italic;
+        font-weight: 100 900;
+        src: url("assets/fonts/inter-latin-wght-italic.woff2") format("woff2");
+      }
+      :root {
+        --bg: #ffffff;
+        --ink: #0d0d0d;
+        --accent: #ff2f00;
+        --muted: #6f6f6f;
+        --dark: #0d0d0d;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--bg);
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg);
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+      .center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* audio-reactive accent glow (persistent, behind every scene) */
+      #glow-wrap {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 0;
+        pointer-events: none;
+      }
+      #glow {
+        width: 1500px;
+        height: 1500px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 47, 0, 0.16) 0%, rgba(255, 47, 0, 0.06) 35%, rgba(255, 47, 0, 0) 65%);
+        opacity: 0.5;
+      }
+      .scene {
+        z-index: 1;
+      }
+
+      /* ---------- Scene 1: hook ---------- */
+      #s1-meet {
+        font-size: 400px;
+        font-weight: 600;
+        letter-spacing: -0.055em;
+        line-height: 1;
+        padding: 0 40px 40px;
+        color: var(--ink);
+        background-image: linear-gradient(100deg, #0d0d0d 0%, #0d0d0d 38%, #ff2f00 72%, #ff2f00 100%);
+        background-size: 220% 100%;
+        background-position: 100% 0;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .lockup {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+      }
+      .lockup .word {
+        display: block;
+        font-weight: 500;
+        letter-spacing: -0.05em;
+        line-height: 1.1;
+        color: var(--ink);
+      }
+      .lockup .rule {
+        display: block;
+        height: 4px;
+        background: var(--ink);
+        border-radius: 2px;
+      }
+      #s1-lock .word {
+        font-size: 120px;
+      }
+      #s1-lock .rule {
+        width: 460px;
+      }
+
+      /* ---------- Scene 2: claim ---------- */
+      #s2-block {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 160px;
+      }
+      .s2-line {
+        display: flex;
+        gap: 0 38px;
+        font-size: 150px;
+        font-weight: 500;
+        letter-spacing: -0.045em;
+        line-height: 1.12;
+      }
+      .mask {
+        display: block;
+        overflow: hidden;
+        padding: 0 10px 18px 0;
+      }
+      .mask > span {
+        display: block;
+      }
+      .accent {
+        color: var(--accent);
+      }
+      #s2-award {
+        font-style: italic;
+        background-image: linear-gradient(90deg, #ff2f00 0%, #ff2f00 40%, #d42700 50%, #ff2f00 60%, #ff2f00 100%);
+        background-size: 300% 100%;
+        background-position: 100% 0;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      /* ---------- Scene 3: selected works ---------- */
+      .chrome {
+        position: absolute;
+        left: 40px;
+        right: 40px;
+        top: 34px;
+        display: flex;
+        align-items: center;
+        font-size: 22px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+      }
+      .chrome .muted {
+        color: var(--muted);
+        margin-left: 160px;
+        text-transform: uppercase;
+      }
+      .chrome .nav {
+        margin-left: auto;
+        display: flex;
+        gap: 28px;
+      }
+      #s3-watermark {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -40px;
+        text-align: center;
+        font-size: 330px;
+        font-weight: 600;
+        letter-spacing: -0.06em;
+        line-height: 1;
+        color: #f1f1f1;
+        white-space: nowrap;
+      }
+      #s3-grid {
+        position: absolute;
+        left: 40px;
+        right: 40px;
+        top: 330px;
+        height: 380px;
+        display: flex;
+        gap: 16px;
+      }
+      .card {
+        position: relative;
+        flex: 0 0 292px;
+        width: 292px;
+        height: 380px;
+        overflow: hidden;
+        background: #111;
+      }
+      .card img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .card .shade {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 28%, rgba(0, 0, 0, 0) 66%, rgba(0, 0, 0, 0.6) 100%);
+      }
+      #c2-dim {
+        position: absolute;
+        inset: 0;
+        background: #0d0d0d;
+        opacity: 0;
+      }
+      .card .meta {
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        top: 12px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 26px;
+        font-weight: 400;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+      }
+      .card .name {
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        bottom: 14px;
+        font-size: 32px;
+        font-weight: 500;
+        color: #ffffff;
+        letter-spacing: -0.035em;
+      }
+
+      /* ---------- Scene 4: recognition ---------- */
+      #s4 {
+        background: var(--dark);
+      }
+      #s4-bg {
+        position: absolute;
+        inset: -40px;
+        width: calc(100% + 80px);
+        height: calc(100% + 80px);
+        object-fit: cover;
+        filter: brightness(0.32) blur(10px);
+      }
+      #s4-veil {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(13, 13, 13, 0.85) 0%, rgba(13, 13, 13, 0.35) 70%, rgba(13, 13, 13, 0.2) 100%);
+      }
+      #s4-content {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 160px;
+        color: #ffffff;
+      }
+      #s4-count-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 36px;
+      }
+      #s4-num {
+        display: block;
+        font-size: 300px;
+        font-weight: 600;
+        letter-spacing: -0.06em;
+        line-height: 0.9;
+        color: #ffffff;
+      }
+      #s4-label {
+        display: block;
+        font-size: 72px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        padding-bottom: 26px;
+        color: #ffffff;
+      }
+      #s4-list {
+        margin-top: 54px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      #s4-list .mask {
+        padding-bottom: 30px;
+        margin-bottom: -22px;
+      }
+      .award {
+        font-size: 54px;
+        letter-spacing: -0.03em;
+        line-height: 1.2;
+        color: #e6e6e6;
+      }
+      .award b {
+        font-weight: 600;
+        color: #ffffff;
+      }
+      .award i {
+        font-style: normal;
+        color: #ff5a33;
+        padding: 0 14px;
+      }
+
+      /* ---------- Scene 5: numbers ---------- */
+      #s5-block {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+      .stat {
+        display: block;
+        font-size: 160px;
+        font-weight: 600;
+        letter-spacing: -0.05em;
+        line-height: 1.1;
+        white-space: nowrap;
+      }
+      .stat .soft {
+        color: #8a8a8a;
+        font-weight: 400;
+      }
+
+      /* ---------- Scene 6: lockup ---------- */
+      #s6-stack {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      #s6-lock .word {
+        font-size: 150px;
+      }
+      #s6-lock .rule {
+        width: 520px;
+        height: 5px;
+      }
+      #s6-tag {
+        display: block;
+        margin-top: 46px;
+        font-size: 30px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      #s6-url {
+        display: block;
+        margin-top: 18px;
+        font-size: 56px;
+        font-weight: 500;
+        letter-spacing: -0.03em;
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-width="1920" data-height="1080" data-duration="23" data-fps="30">
+      <div id="glow-wrap" data-layout-ignore><div id="glow"></div></div>
+
+      <!-- Scene 1 — Hook -->
+      <section id="s1" class="clip scene" data-start="0" data-duration="2.5" data-track-index="1">
+        <div class="center"><div id="s1-meet">Meet</div></div>
+        <div class="center">
+          <div class="lockup" id="s1-lock">
+            <span class="word" id="s1-a">Arian</span>
+            <span class="rule" id="s1-rule"></span>
+            <span class="word" id="s1-b">Atmar</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scene 2 — The claim -->
+      <section id="s2" class="clip scene" data-start="2.5" data-duration="4" data-track-index="1">
+        <div id="s2-block">
+          <div class="s2-line">
+            <span class="mask"><span id="s2-w1">An</span></span>
+            <span class="mask"><span id="s2-award">Award-Winning</span></span>
+          </div>
+          <div class="s2-line">
+            <span class="mask"><span id="s2-w3">Senior UI/UX</span></span>
+            <span class="mask"><span id="s2-w4">Designer</span></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scene 3 — Selected works -->
+      <section id="s3" class="clip scene" data-start="6.5" data-duration="5.5" data-track-index="1">
+        <div id="s3-watermark" data-layout-ignore aria-hidden="true">selected works</div>
+        <div class="chrome" id="s3-chrome">
+          <span>ARIAN ATMAR ©</span>
+          <span class="muted">Specializing in UI/UX &amp; web design</span>
+          <span class="nav"><span>About</span><span>All works</span><span>• Reach me out</span></span>
+        </div>
+        <div id="s3-grid">
+          <div class="card" id="c1"><img src="assets/img/razed-mods.jpg" alt="" /><div class="shade"></div><div class="meta"><span>001</span><span>’26</span></div><div class="name">Razed Mods</div></div>
+          <div class="card" id="c2"><img id="c2-img" src="assets/img/som-power.jpg" alt="" /><div class="shade" id="c2-shade"></div><div id="c2-dim"></div><div class="meta" id="c2-meta"><span>002</span><span>’26</span></div><div class="name" id="c2-name">SŌM Power</div></div>
+          <div class="card" id="c3"><img src="assets/img/som.jpg" alt="" /><div class="shade"></div><div class="meta"><span>003</span><span>’26</span></div><div class="name">SŌM</div></div>
+          <div class="card" id="c4"><img src="assets/img/the-performance-lab.jpg" alt="" /><div class="shade"></div><div class="meta"><span>004</span><span>’26</span></div><div class="name">TPL</div></div>
+          <div class="card" id="c5"><img src="assets/img/kanoi.jpg" alt="" /><div class="shade"></div><div class="meta"><span>005</span><span>’25</span></div><div class="name">Kanoi</div></div>
+          <div class="card" id="c6"><img src="assets/img/the-luxe-week-mobile.jpg" alt="" /><div class="shade"></div><div class="meta"><span>006</span><span>’24</span></div><div class="name">The Luxe Week</div></div>
+        </div>
+      </section>
+
+      <!-- Scene 4 — Recognition -->
+      <section id="s4" class="clip scene" data-start="12" data-duration="4" data-track-index="1">
+        <img id="s4-bg" src="assets/img/som-power.jpg" alt="" />
+        <div id="s4-veil"></div>
+        <div id="s4-content">
+          <div id="s4-count-row">
+            <span id="s4-num">0</span>
+            <span id="s4-label">AWARDS</span>
+          </div>
+          <div id="s4-list">
+            <span class="mask"><span class="award" id="aw1"><b>Awwwards</b><i>·</i>Site of the Day</span></span>
+            <span class="mask"><span class="award" id="aw2"><b>FWA</b><i>·</i>FWA of the Day</span></span>
+            <span class="mask"><span class="award" id="aw3"><b>CSSDA</b><i>·</i>Website of the Day</span></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scene 5 — Numbers -->
+      <section id="s5" class="clip scene" data-start="16" data-duration="3" data-track-index="1">
+        <div id="s5-block">
+          <span class="stat" id="st1">6+ years <span class="soft">of experience</span></span>
+          <span class="stat accent" id="st2">30+ major projects</span>
+        </div>
+      </section>
+
+      <!-- Scene 6 — Lockup -->
+      <section id="s6" class="clip scene" data-start="19" data-duration="4" data-track-index="1">
+        <div id="s6-stack">
+          <div class="lockup" id="s6-lock">
+            <span class="word" id="s6-a">Arian</span>
+            <span class="rule" id="s6-rule"></span>
+            <span class="word" id="s6-b">Atmar</span>
+          </div>
+          <span id="s6-tag">Specializing in UI/UX &amp; web design</span>
+          <span id="s6-url">arianatmar.com</span>
+        </div>
+      </section>
+
+      <!-- Audio -->
+      <audio id="bg-music" data-start="0" data-duration="23" data-track-index="10" data-volume="0.38" src="assets/music/bed.mp3"></audio>
+      <audio id="sfx-meet" data-start="0.06" data-duration="1" data-track-index="11" data-volume="0.6" src="assets/sfx/interface/drop_001.ogg"></audio>
+      <audio id="sfx-swap" data-start="1.42" data-duration="0.5" data-track-index="12" data-volume="0.55" src="assets/sfx/ui/click2.ogg"></audio>
+      <audio id="sfx-w1" data-start="3.0" data-duration="0.5" data-track-index="13" data-volume="0.55" src="assets/sfx/interface/click_003.ogg"></audio>
+      <audio id="sfx-w4" data-start="4.5" data-duration="0.5" data-track-index="14" data-volume="0.55" src="assets/sfx/interface/click_003.ogg"></audio>
+      <audio id="sfx-c1" data-start="7.0" data-duration="1" data-track-index="15" data-volume="0.6" src="assets/sfx/casino/card-slide-1.ogg"></audio>
+      <audio id="sfx-c3" data-start="8.0" data-duration="1" data-track-index="16" data-volume="0.5" src="assets/sfx/casino/card-slide-1.ogg"></audio>
+      <audio id="sfx-c6" data-start="9.5" data-duration="1" data-track-index="17" data-volume="0.6" src="assets/sfx/casino/card-slide-1.ogg"></audio>
+      <audio id="sfx-zoom" data-start="11.2" data-duration="0.6" data-track-index="18" data-volume="0.55" src="assets/sfx/impact/impactSoft_medium_004.ogg"></audio>
+      <audio id="sfx-count" data-start="12.95" data-duration="0.6" data-track-index="19" data-volume="0.6" src="assets/sfx/impact/impactSoft_medium_001.ogg"></audio>
+      <audio id="sfx-aw" data-start="13.5" data-duration="1" data-track-index="20" data-volume="0.55" src="assets/sfx/interface/drop_001.ogg"></audio>
+      <audio id="sfx-st1" data-start="16.0" data-duration="0.6" data-track-index="21" data-volume="0.7" src="assets/sfx/impact/impactSoft_medium_001.ogg"></audio>
+      <audio id="sfx-st2" data-start="17.0" data-duration="0.6" data-track-index="22" data-volume="0.7" src="assets/sfx/impact/impactSoft_medium_004.ogg"></audio>
+      <audio id="sfx-bell" data-start="20.0" data-duration="3" data-track-index="23" data-volume="0.6" src="assets/sfx/impact/impactBell_heavy_000.ogg"></audio>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+
+      // ---------- Scene 1: hook (0–2.5) ----------
+      tl.fromTo("#s1-meet", { scale: 1.7, filter: "blur(28px)", opacity: 0 }, { scale: 1, filter: "blur(0px)", opacity: 1, duration: 0.75, ease: "expo.out" }, 0.08);
+      tl.fromTo("#s1-meet", { backgroundPosition: "100% 0" }, { backgroundPosition: "0% 0", duration: 1.2, ease: "power2.inOut", immediateRender: false }, 0.15);
+      tl.to("#s1-meet", { scale: 0.86, filter: "blur(14px)", opacity: 0, duration: 0.14, ease: "power2.in" }, 1.3);
+      // site intro: line draws out from the centre and pushes the names apart
+      tl.fromTo("#s1-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.75, ease: "expo.inOut" }, 1.42);
+      tl.fromTo("#s1-a", { x: 250, opacity: 0 }, { x: 0, opacity: 1, duration: 0.75, ease: "expo.inOut" }, 1.42);
+      tl.fromTo("#s1-b", { x: -250, opacity: 0 }, { x: 0, opacity: 1, duration: 0.75, ease: "expo.inOut" }, 1.42);
+      tl.to("#s1-lock", { scale: 1.12, opacity: 0, filter: "blur(10px)", duration: 0.25, ease: "power2.in" }, 2.22);
+
+      // ---------- Scene 2: claim (2.5–6.5) ----------
+      // beat-grid: An 3.02, Award-Winning 3.52, Senior UI/UX 4.02, Designer 4.52 — full sentence then holds ~1.6s
+      const s2 = [
+        ["#s2-w1", 3.02, "power4.out"],
+        ["#s2-award", 3.52, "expo.out"],
+        ["#s2-w3", 4.02, "power4.out"],
+        ["#s2-w4", 4.52, "circ.out"],
+      ];
+      s2.forEach(([sel, t, ease]) => {
+        tl.fromTo(sel, { yPercent: 115, rotation: 3 }, { yPercent: 0, rotation: 0, duration: 0.6, ease }, t - 0.04);
+      });
+      tl.fromTo("#s2-award", { backgroundPosition: "100% 0" }, { backgroundPosition: "0% 0", duration: 1.1, ease: "sine.inOut", immediateRender: false }, 4.9);
+      tl.fromTo("#s2-block", { scale: 1 }, { scale: 1.035, duration: 3.4, ease: "none" }, 2.8);
+      tl.to("#s2-block", { y: -60, opacity: 0, filter: "blur(14px)", duration: 0.3, ease: "power2.in" }, 6.18);
+
+      // ---------- Scene 3: selected works (6.5–12.0) ----------
+      tl.fromTo("#s3-chrome", { y: -30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 6.55);
+      tl.fromTo("#s3-watermark", { yPercent: 40, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.9, ease: "expo.out" }, 6.6);
+      // beat-grid: cards on 7.02, 7.52, 8.02, 8.52, 9.02, 9.52 — full grid then holds ~1.6s
+      ["#c1", "#c2", "#c3", "#c4", "#c5", "#c6"].forEach((sel, i) => {
+        tl.fromTo(sel, { y: 160, rotation: 5, scale: 0.9, opacity: 0 }, { y: 0, rotation: 0, scale: 1, opacity: 1, duration: 0.6, ease: "expo.out" }, 7.0 + i * 0.5);
+      });
+      tl.fromTo("#s3-grid", { scale: 1 }, { scale: 1.04, duration: 1.6, ease: "sine.inOut" }, 9.6);
+      // match cut: SŌM Power fills the frame and darkens into Scene 4
+      tl.to(["#c1", "#c3", "#c4", "#c5", "#c6", "#s3-chrome", "#s3-watermark"], { opacity: 0, duration: 0.35, ease: "power2.in" }, 11.2);
+      tl.to(["#c2-meta", "#c2-name", "#c2-shade"], { opacity: 0, duration: 0.2 }, 11.2);
+      tl.to("#c2", { x: 448, y: 19, scale: 6.6, duration: 0.8, ease: "power3.inOut" }, 11.2);
+      tl.fromTo("#c2-dim", { opacity: 0 }, { opacity: 0.7, duration: 0.45, ease: "power2.in" }, 11.5);
+
+      // ---------- Scene 4: recognition (12.0–16.0) ----------
+      tl.fromTo("#s4-bg", { scale: 1.1 }, { scale: 1, duration: 4, ease: "none" }, 12.0);
+      tl.fromTo("#s4-count-row", { y: 70, opacity: 0, filter: "blur(16px)" }, { y: 0, opacity: 1, filter: "blur(0px)", duration: 0.5, ease: "expo.out" }, 12.05);
+      const counter = { v: 0 };
+      tl.fromTo(
+        counter,
+        { v: 0 },
+        {
+          v: 12,
+          duration: 0.85,
+          ease: "power2.out",
+          onUpdate: () => {
+            const n = Math.round(counter.v);
+            document.getElementById("s4-num").textContent = n >= 12 ? "12+" : String(n);
+          },
+        },
+        12.1,
+      );
+      // beat-grid: award lines on 13.52, 14.02, 14.52 — set holds ~1.3s
+      ["#aw1", "#aw2", "#aw3"].forEach((sel, i) => {
+        tl.fromTo(sel, { yPercent: 170 }, { yPercent: 0, duration: 0.55, ease: "power4.out" }, 13.48 + i * 0.5);
+      });
+      tl.to("#s4-content", { x: -40, opacity: 0, duration: 0.2, ease: "power2.in" }, 15.78);
+
+      // ---------- Scene 5: numbers (16.0–19.0) ----------
+      // beat-locked: 16.02 ("6+ years" slam)
+      tl.fromTo("#st1", { scale: 1.6, filter: "blur(24px)", opacity: 0 }, { scale: 1, filter: "blur(0px)", opacity: 1, duration: 0.45, ease: "power4.out" }, 16.0);
+      // beat-locked: 17.02 ("30+ major projects" side-snap)
+      tl.fromTo("#st2", { x: 520, opacity: 0, skewX: -12 }, { x: 0, opacity: 1, skewX: 0, duration: 0.5, ease: "expo.out" }, 17.0);
+      tl.fromTo("#s5-block", { scale: 1 }, { scale: 1.04, duration: 2.6, ease: "none" }, 16.1);
+      tl.to("#s5-block", { scale: 0.9, opacity: 0, filter: "blur(12px)", duration: 0.25, ease: "power2.in" }, 18.72);
+
+      // ---------- Scene 6: lockup (19.0–23.0) ----------
+      tl.fromTo("#s6-a", { x: -420, opacity: 0, filter: "blur(16px)" }, { x: 0, opacity: 1, filter: "blur(0px)", duration: 0.8, ease: "expo.out" }, 19.1);
+      tl.fromTo("#s6-b", { x: 420, opacity: 0, filter: "blur(16px)" }, { x: 0, opacity: 1, filter: "blur(0px)", duration: 0.8, ease: "expo.out" }, 19.1);
+      // beat-locked: 20.02 (rule lands)
+      tl.fromTo("#s6-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.55, ease: "expo.out" }, 19.5);
+      tl.fromTo("#s6-tag", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 20.1);
+      tl.fromTo("#s6-url", { y: 40, scale: 1.12, opacity: 0, filter: "blur(10px)" }, { y: 0, scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.7, ease: "expo.out" }, 20.4);
+
+      // ---------- Audio-reactive glow (music RMS + bass), sampled per frame ----------
+      const A = window.AUDIO_DATA;
+      const glow = document.getElementById("glow");
+      for (let f = 0; f < A.rms.length; f++) {
+        const r = A.rms[f];
+        const b = A.bass[f];
+        tl.call(
+          () => {
+            glow.style.opacity = String(0.35 + r * 0.75);
+            glow.style.transform = "scale(" + (0.94 + b * 0.12).toFixed(3) + ")";
+          },
+          [],
+          f / A.fps,
+        );
+      }
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
